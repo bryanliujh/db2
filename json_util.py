@@ -52,13 +52,13 @@ def getPlans(data):
             print(str(keyInPlan) + ": " + str(plan[keyInPlan])) # key:value
             #store in hash table of dictionaries
             if keyInPlan != "Plans":
-                first_plan[keyInPlan] = plan[keyInPlan]
+                first_plan[keyInPlan] = str(plan[keyInPlan])
 
             # do mapping logic for first plan here
             # lineNumberToDisplay = getCorrelation()
         print("first plan:")
         print(first_plan)
-        hash_table_plans[1] = first_plan
+        hash_table_plans["1"] = first_plan
         print(hash_table_plans)
 
         if isPlansSuccess == False:
@@ -81,10 +81,11 @@ def getPlans(data):
                 for _keyInPlan in _plan:
                     print(str(_keyInPlan) + ": " + str(_plan[_keyInPlan])) # key:value
                     if _keyInPlan != "Plans":
-                        subsequent_plan[_keyInPlan] = _plan[_keyInPlan]
-                hash_table_plans[plans_count] = subsequent_plan
+                        subsequent_plan[_keyInPlan] = str(_plan[_keyInPlan])
+                hash_table_plans[str(plans_count)] = subsequent_plan
         print("finally")
         print(hash_table_plans)
+        return hash_table_plans
                     # do mapping logic here
                     # lineNumberToDisplay = getCorrelation()
 

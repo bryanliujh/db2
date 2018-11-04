@@ -4,24 +4,37 @@ list_of_single_keywords = ["SELECT", "FROM", "WHERE", "GROUP BY", "HAVING", "UNI
 #special processing for order by, group by, inner/left/outer/right join
 
 
-def SORT_keyword(sql_query, query_plan_dict):
-    print("")
+def LIMIT_keyword(query_plan_dict_item):
+    sql_match = "LIMIT " + str(query_plan_dict_item["Actual Rows"])
+    query_plan_dict_item["Sql"] = sql_match
 
-def LIMIT_keyword(sql_query, query_plan_dict):
-    print("")
+def AGGREGATE_keyword(query_plan_dict_item):
+    sql_match = ""
+    for i in query_plan_dict_item["Group Key"]:
+        sql_match = sql_match + i
+    sql_match = "GROUP BY " + sql_match
+    query_plan_dict_item["Sql"] = sql_match
 
-def AGGREGATE_keyword(sql_query, query_plan_dict):
+def SCAN_keyword(query_plan_dict_item):
+    alias = ""
+    if query_plan_dict_item["Relation Name"] == query_plan_dict_item["Alias"]:
+        alias = ""
+    else:
+        alias = query_plan_dict_item["Alias"]
+    sql_match = query_plan_dict_item["Relation Name"] + " " + alias
+    query_plan_dict_item["Sql"] = sql_match
 
-    print("")
+def HASH_JOIN_keyword(query_plan_dict_item):
+    sql_match = str(query_plan_dict_item["Join Type"]) + " JOIN ON " + str(query_plan_dict_item["Hash Cond"])
+    query_plan_dict_item["Sql"] = sql_match
 
-def SCAN_keyword(sql_query, query_plan_dict):
-    print("")
+def UNIQUE_keyword(query_plan_dict_item):
+    sql_match = ""
+    for i in query_plan_dict_item["Output"]:
+        sql_match = sql_match + i
+    sql_match = "DISTINCT " + sql_match
+    query_plan_dict_item["Sql"] = sql_match
 
-def HASH_JOIN_keyword(sql_query, query_plan_dict):
-    print("")
-
-def UNIQUE_keyword(sql_query, query_plan_dict):
-    print("")
 
 def preprocess_sql(sql_query):
     #convert to upper case
@@ -35,31 +48,30 @@ def preprocess_sql(sql_query):
 
         new_sql_query = new_sql_query + " " + word
 
-    return print(new_sql_query)
+    return new_sql_query
 
-def traverse_sql(sql_query, query_plan_keyword, query_plan_dict):
+def traverse_sql(sql_query, query_plan_dict_item):
     sql_query = preprocess_sql(sql_query)
+    query_plan_keyword = query_plan_dict_item["Node Type"]
 
-    if query_plan_keyword == "Sort":
-        SORT_keyword(sql_query, query_plan_dict)
-
-    elif query_plan_keyword == "Limit":
-        LIMIT_keyword(sql_query, query_plan_dict)
+    if query_plan_keyword == "Limit":
+        LIMIT_keyword(query_plan_dict_item)
 
     elif query_plan_keyword == "Aggregate":
-        AGGREGATE_keyword(sql_query, query_plan_dict)
+        AGGREGATE_keyword(query_plan_dict_item)
 
-    elif query_plan_keyword == "Seq Scan" or query_plan_keyword == "Index Scan":
-        SCAN_keyword(sql_query, query_plan_dict)
+    elif query_plan_keyword == "Seq Scan" or query_plan_keyword == "Index Scan" or query_plan_keyword == "Index Only Scan":
+        SCAN_keyword(query_plan_dict_item)
 
     elif query_plan_keyword == "Hash Join":
-        HASH_JOIN_keyword(sql_query, query_plan_dict)
+        HASH_JOIN_keyword(query_plan_dict_item)
 
     elif query_plan_keyword == "Unique":
-        UNIQUE_keyword(sql_query, query_plan_dict)
+        UNIQUE_keyword(query_plan_dict_item)
+
 
     else:
-        print("Ignore")
+        query_plan_dict_item["Sql"] = ""
 
     return print(sql_query)
 
